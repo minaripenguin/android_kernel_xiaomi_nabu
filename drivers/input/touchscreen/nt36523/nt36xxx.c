@@ -49,6 +49,8 @@
 #include "../xiaomi/xiaomi_touch.h"
 #endif
 
+struct wakeup_source *doubletap_wake_lock;
+
 #if NVT_TOUCH_ESD_PROTECT
 static struct delayed_work nvt_esd_check_work;
 static struct workqueue_struct *nvt_esd_check_wq;
@@ -1944,6 +1946,7 @@ out:
 
 static void nvt_switch_mode_work(struct work_struct *work)
 {
+    __pm_stay_awake(doubletap_wake_lock);
 	NVT_LOG("%s double click wakeup", ts->db_wakeup ? "ENABLE" : "DISABLE");
 	if (ts->ic_state <= NVT_IC_SUSPEND_OUT && ts->ic_state != NVT_IC_INIT ) {
 		ts->gesture_command_delayed = ts->db_wakeup;
@@ -1952,6 +1955,7 @@ static void nvt_switch_mode_work(struct work_struct *work)
 	} else  if (ts->ic_state >= NVT_IC_RESUME_IN){
 		dsi_panel_doubleclick_enable(!!ts->db_wakeup);
 	}
+	__pm_relax(doubletap_wake_lock);
 }
 
 #ifdef CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE
@@ -2658,6 +2662,7 @@ void nvt_enable_doubleclick(void)
 {
 	int ret = 0;
 	uint8_t buf[4] = {0};
+
 	if (ts->db_wakeup) {
 		buf[0] = EVENT_MAP_HOST_CMD;
 		buf[1] = 0x13;
@@ -2689,6 +2694,8 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 	struct attribute_group *attrs_p = NULL;
 
 	NVT_LOG("probe start\n");
+
+    doubletap_wake_lock = wakeup_source_register(NULL, "doubletap_wake_lock");
 
 	ts = kzalloc(sizeof(struct nvt_ts_data), GFP_KERNEL);
 	if (ts == NULL) {
