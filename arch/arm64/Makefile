@@ -39,6 +39,17 @@ LDFLAGS	+= --no-fix-cortex-a53-843419
   endif
 endif
 
+ifeq ($(cc-name),clang)
+    COMMON_FLAGS := -mcpu=cortex-a55 -march=armv8.2-a+crypto -mtune=cortex-a55 -O3 -mfpu=neon-fp-armv8 -funroll-loops -finline-functions
+
+    KBUILD_CFLAGS += $(COMMON_FLAGS)
+    KBUILD_AFLAGS += $(COMMON_FLAGS)
+
+    ifeq ($(CONFIG_LD_IS_LLD), y)
+        KBUILD_LDFLAGS += -mllvm $(COMMON_FLAGS)
+    endif
+endif
+
 KBUILD_DEFCONFIG := defconfig
 
 # Check for binutils support for specific extensions

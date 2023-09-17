@@ -17,6 +17,13 @@ ccflags-y += -nostdlib -Wl,-soname=linux-vdso.so.1 \
 		$(call cc-ldoption, -Wl$(comma)--hash-style=sysv)
 ccflags-y += $(DISABLE_LTO)
 
+ifeq ($(cc-name),clang)
+    COMMON_FLAGS := -mcpu=cortex-a55 -march=armv8.2-a+crypto -mtune=cortex-a55 -O3 -mfpu=neon-fp-armv8 -funroll-loops -finline-functions
+
+    VDSO_CFLAGS += $(COMMON_FLAGS)
+    ccflags-y += $(COMMON_FLAGS)
+endif
+
 CFLAGS_REMOVE_vgettimeofday.o += $(CC_FLAGS_SCS)
 
 # Disable gcov profiling for VDSO code
