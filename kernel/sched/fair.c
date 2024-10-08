@@ -5325,7 +5325,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 	int task_new = !(flags & ENQUEUE_WAKEUP);
     bool prefer_idle = sched_feat(EAS_PREFER_IDLE) ?
 				    (schedtune_prefer_idle(p) > 0) : 0;
-    int task_boost = per_task_boost(p);
 	bool schedtune_boosted = schedtune_task_boost(p) > 0 ||
 			    task_boost_policy(p) == SCHED_BOOST_ON_BIG;
 
