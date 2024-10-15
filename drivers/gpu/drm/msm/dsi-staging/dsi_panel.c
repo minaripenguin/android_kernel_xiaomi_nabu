@@ -869,7 +869,7 @@ int dsi_panel_esd_irq_ctrl(struct dsi_panel *panel,
 				desc = irq_to_desc(esd_config->esd_err_irq);
 				if (!irq_settings_is_level(desc))
 					desc->istate &= ~IRQS_PENDING;
-				enable_irq(esd_config->esd_err_irq);
+				enable_irq_wake(esd_config->esd_err_irq);
 				pr_info("panel esd irq is enable\n");
 			} else {
 				disable_irq_nosync(esd_config->esd_err_irq);
